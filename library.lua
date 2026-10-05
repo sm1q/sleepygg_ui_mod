@@ -1,7 +1,7 @@
 --[[
 
     Milenium Library (Extended)
-    -> Original by @finobe 
+    -> Original by @finobe
     -> Added: Font Color, Background Color, Theme Configs,
               Default / Create / Overwrite / Load for Themes & Configs
 ]]
@@ -217,7 +217,7 @@
     end
 --
 
--- Theme & Config storage
+-- Theme / Config storage
     local THEME_FILE    = library.directory .. "/themes/themes.json"
     local SETTINGS_FILE = library.directory .. "/settings.json"
 
@@ -234,7 +234,6 @@
     local Themes   = read_json(THEME_FILE)
     local Settings = read_json(SETTINGS_FILE)
 
-    -- Built-in default themes
     local DEFAULT_THEMES = {
         Default   = {accent="9B96DB", font="FFFFFF", background="0E0E10", muted="484849"},
         Midnight  = {accent="7850FF", font="DCDCE6", background="0A0A0F", muted="9696A0"},
@@ -797,11 +796,9 @@
             local cfg = {
                 name = properties.name or properties.Name or "visuals"; 
                 icon = properties.icon or properties.Icon or "http://www.roblox.com/asset/?id=6034767608";
-                
                 tabs = properties.tabs or properties.Tabs or {"Main", "Misc.", "Settings"};
                 pages = {}; 
                 current_multi; 
-                
                 items = {};
             } 
 
@@ -863,6 +860,7 @@
                     TextSize = 16;
                     BackgroundColor3 = rgb(255, 255, 255)
                 });
+                library:apply_theme(items[ "name" ], "font", "TextColor3")
                 
                 library:create( "UIPadding" , {
                     Parent = items[ "name" ];
@@ -920,6 +918,4 @@
                             Text = "";
                             Parent = items[ "multi_section_button_holder" ];
                             Name = "\0";
-                            Size = dim2(0, 0, 0, 39);
-                            BackgroundTransparency = 1;
-                            Cl
+                            Size =
