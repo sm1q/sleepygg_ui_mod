@@ -3032,7 +3032,7 @@
 
     function library:init_config(window) 
         window:seperator({name = "settings"})
-        local main = window:tab({name = "settings", tabs = {"Main"}})
+        local main = window:tab({name = "configs", tabs = {"Main"}})
         
         local column = main:column({})
         local section = column:section({name = "settings", size = 1, default = true, icon = "rbxassetid://139628202576511"})
