@@ -1,9 +1,9 @@
 --[[
 
-    Milenium Library (Extended)
+    Milenium Library (Custom Settings Build)
     -> Original by @finobe
-    -> Added: Font Color, Background Color, Theme Configs,
-              Default / Create / Overwrite / Load for Themes & Configs
+    -> Settings tab: Background, Font, Outline only
+    -> Configs + Theme save/load/create/overwrite/default
 ]]
 
 -- Variables 
@@ -83,10 +83,7 @@
 
     local themes = {
         preset = {
-            accent     = rgb(155, 150, 219),
-            font       = rgb(255, 255, 255),
-            background = rgb(14, 14, 16),
-            muted      = rgb(72, 72, 73),
+            accent = rgb(155, 150, 219),
         }, 
 
         utility = {
@@ -95,15 +92,6 @@
                 TextColor3 = {}, 
                 ImageColor3 = {}, 
                 ScrollBarImageColor3 = {} 
-            },
-            font = {
-                TextColor3 = {},
-            },
-            background = {
-                BackgroundColor3 = {},
-            },
-            muted = {
-                TextColor3 = {},
             },
         }
     }
@@ -154,7 +142,6 @@
         [Enum.KeyCode.Slash] = "/",
         [Enum.KeyCode.Asterisk] = "*",
         [Enum.KeyCode.Plus] = "+",
-        [Enum.KeyCode.Period] = ".",
         [Enum.KeyCode.Backquote] = "`",
         [Enum.UserInputType.MouseButton1] = "MB1",
         [Enum.UserInputType.MouseButton2] = "MB2",
@@ -168,6 +155,14 @@
     for _, path in next, library.folders do 
         makefolder(library.directory .. path)
     end
+
+    -- Create the cache ScreenGui the library expects
+    library.cache = Instance.new("ScreenGui")
+    library.cache.Name = "\0"
+    library.cache.Enabled = false
+    library.cache.IgnoreGuiInset = true
+    library.cache.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    library.cache.Parent = coregui
 
     local flags = library.flags 
     local config_flags = library.config_flags
@@ -214,43 +209,6 @@
             small = Font.new(Medium, Enum.FontWeight.Regular, Enum.FontStyle.Normal);
             font = Font.new(SemiBold, Enum.FontWeight.Regular, Enum.FontStyle.Normal);
         }
-    end
---
-
--- Theme / Config storage
-    local THEME_FILE    = library.directory .. "/themes/themes.json"
-    local SETTINGS_FILE = library.directory .. "/settings.json"
-
-    local function read_json(path)
-        if not isfile(path) then return {} end
-        local ok, data = pcall(function() return http_service:JSONDecode(readfile(path)) end)
-        return ok and data or {}
-    end
-
-    local function write_json(path, tbl)
-        writefile(path, http_service:JSONEncode(tbl))
-    end
-
-    local Themes   = read_json(THEME_FILE)
-    local Settings = read_json(SETTINGS_FILE)
-
-    local DEFAULT_THEMES = {
-        Default   = {accent="9B96DB", font="FFFFFF", background="0E0E10", muted="484849"},
-        Midnight  = {accent="7850FF", font="DCDCE6", background="0A0A0F", muted="9696A0"},
-        Solarized = {accent="268BD2", font="FDF6E3", background="002B36", muted="93A1A1"},
-        Light     = {accent="3C78F0", font="1E1E1E", background="F0F0F5", muted="64646E"},
-        Blood     = {accent="C81E1E", font="F0F0F0", background="190505", muted="B47878"},
-    }
-    for name, t in pairs(DEFAULT_THEMES) do
-        if not Themes[name] then Themes[name] = t end
-    end
-    write_json(THEME_FILE, Themes)
-
-    local function apply_palette(p)
-        library:update_theme("accent",     hex(p.accent))
-        library:update_theme("font",       hex(p.font))
-        library:update_theme("background", hex(p.background))
-        library:update_theme("muted",      hex(p.muted))
     end
 --
 
@@ -478,9 +436,7 @@
         end 
 
         function library:apply_theme(instance, theme, property) 
-            if themes.utility[theme] and themes.utility[theme][property] then 
-                insert(themes.utility[theme][property], instance)
-            end
+            insert(themes.utility[theme][property], instance)
         end
 
         function library:update_theme(theme, color)
@@ -584,7 +540,6 @@
                     BorderSizePixel = 0;
                     BackgroundColor3 = rgb(14, 14, 16)
                 }); items[ "main" ].Position = dim2(0, items[ "main" ].AbsolutePosition.X, 0, items[ "main" ].AbsolutePosition.Y)
-                library:apply_theme(items[ "main" ], "background", "BackgroundColor3")
                 
                 library:create( "UICorner" , {
                     Parent = items[ "main" ];
@@ -725,7 +680,6 @@
                     BorderSizePixel = 0;
                     BackgroundColor3 = rgb(23, 23, 25)
                 });
-                library:apply_theme(items[ "info" ], "background", "BackgroundColor3")
                 
                 library:create( "UICorner" , {
                     Parent = items[ "info" ];
@@ -740,7 +694,6 @@
                     BorderSizePixel = 0;
                     BackgroundColor3 = rgb(23, 23, 25)
                 });
-                library:apply_theme(items[ "grey_fill" ], "background", "BackgroundColor3")
                 
                 items[ "game" ] = library:create( "TextLabel" , {
                     FontFace = fonts.font;
@@ -758,7 +711,7 @@
                     AutomaticSize = Enum.AutomaticSize.XY;
                     TextSize = 14;
                     BackgroundColor3 = rgb(255, 255, 255)
-                }); library:apply_theme(items[ "game" ], "muted", "TextColor3")
+                }); 
                 
                 items[ "other_info" ] = library:create( "TextLabel" , {
                     Parent = items[ "info" ];
@@ -860,7 +813,6 @@
                     TextSize = 16;
                     BackgroundColor3 = rgb(255, 255, 255)
                 });
-                library:apply_theme(items[ "name" ], "font", "TextColor3")
                 
                 library:create( "UIPadding" , {
                     Parent = items[ "name" ];
@@ -1128,7 +1080,6 @@
                     TextSize = 16;
                     BackgroundColor3 = rgb(255, 255, 255)
                 });
-                library:apply_theme(items[ "name" ], "muted", "TextColor3")
                 
                 library:create( "UIPadding" , {
                     Parent = items[ "name" ];
@@ -1219,7 +1170,6 @@
                     BorderSizePixel = 0;
                     BackgroundColor3 = rgb(25, 25, 29)
                 });
-                library:apply_theme(items[ "outline" ], "background", "BackgroundColor3")
 
                 library:create( "UICorner" , {
                     Parent = items[ "outline" ];
@@ -1235,7 +1185,6 @@
                     BorderSizePixel = 0;
                     BackgroundColor3 = rgb(22, 22, 24)
                 });
-                library:apply_theme(items[ "inline" ], "background", "BackgroundColor3")
                 
                 library:create( "UICorner" , {
                     Parent = items[ "inline" ];
@@ -1295,7 +1244,6 @@
                     TextSize = 16;
                     BackgroundColor3 = rgb(19, 19, 21)
                 });
-                library:apply_theme(items[ "button" ], "background", "BackgroundColor3")
                 
                 library:create( "UIStroke" , {
                     Color = rgb(23, 23, 29);
@@ -1339,7 +1287,6 @@
                     TextSize = 16;
                     BackgroundColor3 = rgb(255, 255, 255)
                 });
-                library:apply_theme(items[ "section_title" ], "font", "TextColor3")
                 
                 library:create( "Frame" , {
                     AnchorPoint = vec2(0, 1);
@@ -1496,7 +1443,6 @@
                     TextSize = 16;
                     BackgroundColor3 = rgb(255, 255, 255)
                 });
-                library:apply_theme(items[ "name" ], "font", "TextColor3")
 
                 if cfg.info then 
                     items[ "info" ] = library:create( "TextLabel" , {
@@ -1516,7 +1462,6 @@
                         TextSize = 16;
                         BackgroundColor3 = rgb(255, 255, 255)
                     });
-                    library:apply_theme(items[ "info" ], "muted", "TextColor3")
                 end 
                 
                 library:create( "UIPadding" , {
@@ -1759,7 +1704,6 @@
                     TextSize = 16;
                     BackgroundColor3 = rgb(255, 255, 255)
                 });
-                library:apply_theme(items[ "name" ], "font", "TextColor3")
                 
                 if cfg.info then 
                     items[ "info" ] = library:create( "TextLabel" , {
@@ -1779,7 +1723,6 @@
                         TextSize = 16;
                         BackgroundColor3 = rgb(255, 255, 255)
                     });
-                    library:apply_theme(items[ "info" ], "muted", "TextColor3")
                 end 
 
                 library:create( "UIPadding" , {
@@ -1878,7 +1821,6 @@
                     TextSize = 16;
                     BackgroundColor3 = rgb(255, 255, 255)
                 });
-                library:apply_theme(items[ "value" ], "muted", "TextColor3")
                 
                 library:create( "UIPadding" , {
                     Parent = items[ "value" ];
@@ -1988,7 +1930,6 @@
                     TextSize = 16;
                     BackgroundColor3 = rgb(255, 255, 255)
                 });
-                library:apply_theme(items[ "name" ], "font", "TextColor3")
                 
                 if cfg.info then 
                     items[ "info" ] = library:create( "TextLabel" , {
@@ -2008,7 +1949,6 @@
                         TextSize = 16;
                         BackgroundColor3 = rgb(255, 255, 255)
                     });
-                    library:apply_theme(items[ "info" ], "muted", "TextColor3")
                 end 
 
                 library:create( "UIPadding" , {
@@ -2072,7 +2012,6 @@
                     TextSize = 14;
                     BackgroundColor3 = rgb(255, 255, 255)
                 });
-                library:apply_theme(items[ "sub_text" ], "muted", "TextColor3")
                 
                 library:create( "UIPadding" , {
                     Parent = items[ "sub_text" ];
@@ -2116,7 +2055,6 @@
                     BackgroundColor3 = rgb(33, 33, 35);
                     ZIndex = 10;
                 });
-                library:apply_theme(items[ "outline" ], "background", "BackgroundColor3")
                 
                 library:create( "UIPadding" , {
                     PaddingBottom = dim(0, 6);
@@ -2297,7 +2235,6 @@
                     TextSize = 16;
                     BackgroundColor3 = rgb(255, 255, 255)
                 });
-                library:apply_theme(items[ "name" ], "font", "TextColor3")
 
                 if cfg.info then 
                     items[ "info" ] = library:create( "TextLabel" , {
@@ -2317,7 +2254,6 @@
                         TextSize = 16;
                         BackgroundColor3 = rgb(255, 255, 255)
                     });
-                    library:apply_theme(items[ "info" ], "muted", "TextColor3")
                 end 
                 
                 library:create( "UIPadding" , {
@@ -2876,7 +2812,6 @@
                     TextSize = 16;
                     BackgroundColor3 = rgb(255, 255, 255)
                 });
-                library:apply_theme(items[ "name" ], "font", "TextColor3")
                 
                 library:create( "UIPadding" , {
                     Parent = items[ "name" ];
@@ -3014,7 +2949,6 @@
                     TextSize = 16;
                     BackgroundColor3 = rgb(255, 255, 255)
                 });
-                library:apply_theme(items[ "name" ], "font", "TextColor3")
                 
                 library:create( "UIPadding" , {
                     Parent = items[ "name" ];
@@ -3077,7 +3011,6 @@
                     TextSize = 14;
                     BackgroundColor3 = rgb(255, 255, 255)
                 });
-                library:apply_theme(items[ "key" ], "muted", "TextColor3")
                 
                 library:create( "UIPadding" , {
                     Parent = items[ "key" ];
@@ -3378,7 +3311,6 @@
                     AutomaticSize = Enum.AutomaticSize.Y;
                     BackgroundColor3 = rgb(25, 25, 29)
                 });
-                library:apply_theme(items[ "outline" ], "background", "BackgroundColor3")
                 
                 items[ "inline" ] = library:create( "Frame" , {
                     Parent = items[ "outline" ];
@@ -3389,7 +3321,6 @@
                     BorderSizePixel = 0;
                     BackgroundColor3 = rgb(22, 22, 24)
                 });
-                library:apply_theme(items[ "inline" ], "background", "BackgroundColor3")
                 
                 library:create( "UICorner" , {
                     Parent = items[ "inline" ];
@@ -3564,243 +3495,7 @@
         end 
 
         function library:init_config(window) 
-            window:seperator({name = "Settings"})
-            local main = window:tab({name = "Configs", tabs = {"Main"}})
-            
-            local column = main:column({})
-            local section = column:section({name = "Configs", size = 1, default = true, icon = "rbxassetid://139628202576511"})
-            config_holder = section:list({options = {"Report", "This", "Error", "To", "Finobe"}, callback = function(option) end, flag = "config_name_list"}); library:update_config_list()
-            
-            local column = main:column({})
-            local section = column:section({name = "Settings", side = "right", size = 1, default = true, icon = "rbxassetid://129380150574313"})
-            section:textbox({name = "Config name:", flag = "config_name_text"})
-            section:button({name = "Save", callback = function() writefile(library.directory .. "/configs/" .. flags["config_name_text"] or flags["config_name_list"] .. ".cfg", library:get_config()) library:update_config_list() notifications:create_notification({name = "Configs", info = "Saved config to:\n" .. flags["config_name_list"] or flags["config_name_text"]}) end}) 
-            section:button({name = "Load", callback = function() library:load_config(readfile(library.directory .. "/configs/" .. flags["config_name_list"] .. ".cfg"))  library:update_config_list() notifications:create_notification({name = "Configs", info = "Loaded config:\n" .. flags["config_name_list"]}) end})
-            section:button({name = "Delete", callback = function() delfile(library.directory .. "/configs/" .. flags["config_name_list"] .. ".cfg")  library:update_config_list() notifications:create_notification({name = "Configs", info = "Deleted config:\n" .. flags["config_name_list"]}) end})
-            section:colorpicker({name = "Menu Accent", callback = function(color, alpha) library:update_theme("accent", color) end, color = themes.preset.accent})
-            section:keybind({name = "Menu Bind", callback = function(bool) window.toggle_menu(bool) end, default = true})
-        end
-    --
-
-    -- Theme / Config Managers (public API)
-        function library:create_theme(name, palette)
-            if Themes[name] then return false end
-            Themes[name] = palette
-            write_json(THEME_FILE, Themes)
-            return true
-        end
-
-        function library:overwrite_theme(name, palette)
-            if not Themes[name] then return false end
-            Themes[name] = palette
-            write_json(THEME_FILE, Themes)
-            return true
-        end
-
-        function library:load_theme(name)
-            if not Themes[name] then return false end
-            apply_palette(Themes[name])
-            Settings.activeTheme = name
-            write_json(SETTINGS_FILE, Settings)
-            return true
-        end
-
-        function library:set_default_theme(name)
-            if not Themes[name] then return false end
-            Settings.defaultTheme = name
-            write_json(SETTINGS_FILE, Settings)
-            return true
-        end
-
-        function library:delete_theme(name)
-            if not Themes[name] then return false end
-            Themes[name] = nil
-            if Settings.activeTheme == name then Settings.activeTheme = nil end
-            if Settings.defaultTheme == name then Settings.defaultTheme = nil end
-            write_json(THEME_FILE, Themes)
-            write_json(SETTINGS_FILE, Settings)
-            return true
-        end
-
-        function library:list_themes()
-            local out = {}
-            for k in pairs(Themes) do table.insert(out, k) end
-            table.sort(out)
-            return out
-        end
-
-        function library:get_theme(name) return Themes[name] end
-        function library:get_settings() return Settings end
-
-        function library:create_config(name)
-            local path = library.directory .. "/configs/" .. name .. ".cfg"
-            if isfile(path) then return false end
-            writefile(path, library:get_config())
-            library:update_config_list()
-            return true
-        end
-
-        function library:overwrite_config(name)
-            local path = library.directory .. "/configs/" .. name .. ".cfg"
-            if not isfile(path) then return false end
-            writefile(path, library:get_config())
-            library:update_config_list()
-            return true
-        end
-
-        function library:load_named_config(name)
-            local path = library.directory .. "/configs/" .. name .. ".cfg"
-            if not isfile(path) then return false end
-            library:load_config(readfile(path))
-            Settings.activeConfig = name
-            write_json(SETTINGS_FILE, Settings)
-            return true
-        end
-
-        function library:set_default_config(name)
-            local path = library.directory .. "/configs/" .. name .. ".cfg"
-            if not isfile(path) then return false end
-            Settings.defaultConfig = name
-            write_json(SETTINGS_FILE, Settings)
-            return true
-        end
-
-        function library:delete_named_config(name)
-            local path = library.directory .. "/configs/" .. name .. ".cfg"
-            if not isfile(path) then return false end
-            delfile(path)
-            if Settings.activeConfig == name then Settings.activeConfig = nil end
-            if Settings.defaultConfig == name then Settings.defaultConfig = nil end
-            write_json(SETTINGS_FILE, Settings)
-            library:update_config_list()
-            return true
-        end
-
-        function library:init_default_config()
-            local n = Settings.defaultConfig or Settings.activeConfig
-            if n and isfile(library.directory .. "/configs/" .. n .. ".cfg") then
-                library:load_config(readfile(library.directory .. "/configs/" .. n .. ".cfg"))
-            end
-        end
-
-        function library:settings_panel(window)
-            window:seperator({name = "Settings"})
-
-            local thmTabs = window:tab({name = "Themes", tabs = {"Main"}})
-            local thmCol  = thmTabs:column({})
-            local thmSec  = thmCol:section({name = "Themes", size = 1, default = true})
-
-            thmSec:list({
-                options = library:list_themes(),
-                flag = "theme_list",
-                callback = function(name) library:load_theme(name) end
-            })
-
-            thmSec:colorpicker({
-                name = "Font Color",
-                color = hex(library:get_theme(Settings.activeTheme or "Default").font),
-                callback = function(c)
-                    local a = Settings.activeTheme or "Default"
-                    local t = library:get_theme(a); t.font = c:ToHex()
-                    library:overwrite_theme(a, t)
-                    library:update_theme("font", c)
-                end
-            })
-
-            thmSec:colorpicker({
-                name = "Background Color",
-                color = hex(library:get_theme(Settings.activeTheme or "Default").background),
-                callback = function(c)
-                    local a = Settings.activeTheme or "Default"
-                    local t = library:get_theme(a); t.background = c:ToHex()
-                    library:overwrite_theme(a, t)
-                    library:update_theme("background", c)
-                end
-            })
-
-            thmSec:colorpicker({
-                name = "Accent Color",
-                color = themes.preset.accent,
-                callback = function(c)
-                    local a = Settings.activeTheme or "Default"
-                    local t = library:get_theme(a); t.accent = c:ToHex()
-                    library:overwrite_theme(a, t)
-                    library:update_theme("accent", c)
-                end
-            })
-
-            thmSec:textbox({ name = "Theme name", flag = "theme_name" })
-
-            thmSec:button({name = "Create Theme", callback = function()
-                local n = library.flags["theme_name"]; if not n or n == "" then return end
-                library:create_theme(n, {
-                    accent     = themes.preset.accent:ToHex(),
-                    font       = themes.preset.font:ToHex(),
-                    background = themes.preset.background:ToHex(),
-                    muted      = themes.preset.muted:ToHex(),
-                })
-            end})
-
-            thmSec:button({name = "Overwrite Theme", callback = function()
-                local n = library.flags["theme_list"]; if not n then return end
-                library:overwrite_theme(n, {
-                    accent     = themes.preset.accent:ToHex(),
-                    font       = themes.preset.font:ToHex(),
-                    background = themes.preset.background:ToHex(),
-                    muted      = themes.preset.muted:ToHex(),
-                })
-            end})
-
-            thmSec:button({name = "Set Default Theme", callback = function()
-                local n = library.flags["theme_list"]; if n then library:set_default_theme(n) end
-            end})
-
-            thmSec:button({name = "Delete Theme", callback = function()
-                local n = library.flags["theme_list"]; if n then library:delete_theme(n) end
-            end})
-
-            local cfgTabs = window:tab({name = "Configs", tabs = {"Main"}})
-            local cfgCol  = cfgTabs:column({})
-            local cfgSec  = cfgCol:section({name = "Configs", size = 1, default = true})
-
-            local function refresh_list()
-                local names = {}
-                for _, f in listfiles(library.directory .. "/configs") do
-                    local n = f:match("([^/\\]+)%.cfg$")
-                    if n then table.insert(names, n) end
-                end
-                table.sort(names)
-                return names
-            end
-
-            cfgSec:list({
-                options = refresh_list(),
-                flag = "config_list",
-                callback = function() end
-            })
-
-            cfgSec:textbox({ name = "Config name", flag = "config_name" })
-
-            cfgSec:button({name = "Create Config", callback = function()
-                local n = library.flags["config_name"]; if not n or n == "" then return end
-                library:create_config(n)
-            end})
-
-            cfgSec:button({name = "Overwrite Config", callback = function()
-                local n = library.flags["config_list"]; if n then library:overwrite_config(n) end
-            end})
-
-            cfgSec:button({name = "Load Config", callback = function()
-                local n = library.flags["config_list"]; if n then library:load_named_config(n) end
-            end})
-
-            cfgSec:button({name = "Set Default Config", callback = function()
-                local n = library.flags["config_list"]; if n then library:set_default_config(n) end
-            end})
-
-            cfgSec:button({name = "Delete Config", callback = function()
-                local n = library.flags["config_list"]; if n then library:delete_named_config(n) end
-            end})
+            -- replaced: settings tab is built by the caller
         end
     --
 
@@ -3961,9 +3656,259 @@
             end)
         end
     --
--- 
 
--- Load default theme on startup
-apply_palette(Themes[Settings.defaultTheme or Settings.activeTheme or "Default"])
+    --==================================================
+    -- THEME / CONFIG MANAGERS (built into library)
+    --==================================================
+        local THEME_FILE    = library.directory .. "/themes/themes.json"
+        local SETTINGS_FILE = library.directory .. "/settings.json"
+
+        local function _read_json(p)
+            if not isfile(p) then return {} end
+            local ok, d = pcall(function() return http_service:JSONDecode(readfile(p)) end)
+            return ok and d or {}
+        end
+        local function _write_json(p, t) writefile(p, http_service:JSONEncode(t)) end
+
+        local _themes   = _read_json(THEME_FILE)
+        local _settings = _read_json(SETTINGS_FILE)
+
+        local DEFAULTS = {
+            background = "0E0E10",
+            font       = "FFFFFF",
+            outline    = "17171D",
+        }
+
+        local Reactors = { background = {}, font = {}, outline = {} }
+
+        local function _register(inst, prop, kind)
+            table.insert(Reactors[kind], {inst = inst, prop = prop})
+        end
+
+        local function _apply_color(kind, c3)
+            for _, r in pairs(Reactors[kind]) do
+                if typeof(r.inst[r.prop]) == "Color3" then
+                    r.inst[r.prop] = c3
+                end
+            end
+        end
+
+        function library:register_theme(root)
+            for _, d in ipairs(root:GetDescendants()) do
+                if d:IsA("Frame") or d:IsA("ScrollingFrame") or d:IsA("TextButton") or d:IsA("ImageButton") then
+                    _register(d, "BackgroundColor3", "background")
+                end
+                if d:IsA("TextLabel") or d:IsA("TextButton") or d:IsA("TextBox") then
+                    _register(d, "TextColor3", "font")
+                end
+                if d:IsA("UIStroke") then
+                    _register(d, "Color", "outline")
+                end
+            end
+        end
+
+        function library:apply_theme_colors(t)
+            if not t then return end
+            _apply_color("background", hex(t.background or DEFAULTS.background))
+            _apply_color("font",       hex(t.font       or DEFAULTS.font))
+            _apply_color("outline",    hex(t.outline    or DEFAULTS.outline))
+        end
+
+        function library:create_theme(name, palette)
+            if _themes[name] then return false end
+            _themes[name] = palette; _write_json(THEME_FILE, _themes); return true
+        end
+        function library:overwrite_theme(name, palette)
+            if not _themes[name] then return false end
+            _themes[name] = palette; _write_json(THEME_FILE, _themes); return true
+        end
+        function library:load_theme(name)
+            if not _themes[name] then return false end
+            library:apply_theme_colors(_themes[name])
+            _settings.activeTheme = name; _write_json(SETTINGS_FILE, _settings); return true
+        end
+        function library:set_default_theme(name)
+            if not _themes[name] then return false end
+            _settings.defaultTheme = name; _write_json(SETTINGS_FILE, _settings); return true
+        end
+        function library:delete_theme(name)
+            if not _themes[name] then return false end
+            _themes[name] = nil
+            if _settings.activeTheme  == name then _settings.activeTheme  = nil end
+            if _settings.defaultTheme == name then _settings.defaultTheme = nil end
+            _write_json(THEME_FILE, _themes); _write_json(SETTINGS_FILE, _settings); return true
+        end
+        function library:list_themes()
+            local out = {}
+            for k in pairs(_themes) do table.insert(out, k) end
+            table.sort(out); return out
+        end
+        function library:get_theme(name) return _themes[name] end
+        function library:get_settings() return _settings end
+        function library:get_defaults() return DEFAULTS end
+
+        function library:create_config(name)
+            local p = library.directory .. "/configs/" .. name .. ".cfg"
+            if isfile(p) then return false end
+            writefile(p, library:get_config()); library:update_config_list(); return true
+        end
+        function library:overwrite_config(name)
+            local p = library.directory .. "/configs/" .. name .. ".cfg"
+            if not isfile(p) then return false end
+            writefile(p, library:get_config()); library:update_config_list(); return true
+        end
+        function library:load_named_config(name)
+            local p = library.directory .. "/configs/" .. name .. ".cfg"
+            if not isfile(p) then return false end
+            library:load_config(readfile(p))
+            _settings.activeConfig = name; _write_json(SETTINGS_FILE, _settings); return true
+        end
+        function library:set_default_config(name)
+            local p = library.directory .. "/configs/" .. name .. ".cfg"
+            if not isfile(p) then return false end
+            _settings.defaultConfig = name; _write_json(SETTINGS_FILE, _settings); return true
+        end
+        function library:delete_named_config(name)
+            local p = library.directory .. "/configs/" .. name .. ".cfg"
+            if not isfile(p) then return false end
+            delfile(p)
+            if _settings.activeConfig  == name then _settings.activeConfig  = nil end
+            if _settings.defaultConfig == name then _settings.defaultConfig = nil end
+            _write_json(SETTINGS_FILE, _settings); library:update_config_list(); return true
+        end
+
+        function library:init_default_config()
+            local n = _settings.defaultConfig or _settings.activeConfig
+            if n and isfile(library.directory .. "/configs/" .. n .. ".cfg") then
+                library:load_config(readfile(library.directory .. "/configs/" .. n .. ".cfg"))
+            end
+        end
+
+        function library:init_default_theme()
+            local n = _settings.defaultTheme or _settings.activeTheme
+            if n and _themes[n] then
+                library:apply_theme_colors(_themes[n])
+            else
+                library:apply_theme_colors({background=DEFAULTS.background, font=DEFAULTS.font, outline=DEFAULTS.outline})
+            end
+        end
+
+        --==================================================
+        -- SETTINGS TAB (built-in, replaces init_config UI)
+        --==================================================
+        function library:init_settings(window)
+            library:register_theme(window.items.main)
+            library:init_default_theme()
+
+            window:seperator({name = "Settings"})
+
+            local main = window:tab({name = "Settings", tabs = {"Main"}})
+            local page = main
+
+            -- LEFT: configs
+            local leftCol = page:column({})
+            local cfgSec = leftCol:section({name = "configs", size = 1, default = true})
+            cfgSec:list({ options = {}, flag = "config_list", callback = function() end })
+
+            -- hook config list refresh
+            local old_refresh = cfgSec
+            config_holder = {
+                refresh_options = function(list)
+                    old_refresh:list_refresh and old_refresh:list_refresh(list)
+                end
+            }
+
+            cfgSec:textbox({ name = "config name", flag = "config_name" })
+            cfgSec:button({name = "create", callback = function()
+                local n = library.flags["config_name"]; if not n or n == "" then return end
+                library:create_config(n)
+            end})
+            cfgSec:button({name = "overwrite", callback = function()
+                local n = library.flags["config_list"]; if n then library:overwrite_config(n) end
+            end})
+            cfgSec:button({name = "load", callback = function()
+                local n = library.flags["config_list"]; if n then library:load_named_config(n) end
+            end})
+            cfgSec:button({name = "set default", callback = function()
+                local n = library.flags["config_list"]; if n then library:set_default_config(n) end
+            end})
+            cfgSec:button({name = "delete", callback = function()
+                local n = library.flags["config_list"]; if n then library:delete_named_config(n) end
+            end})
+
+            -- RIGHT: UI customization (background, font, outline only)
+            local rightCol = page:column({})
+            local uiSec = rightCol:section({name = "settings", size = 1, default = true})
+
+            local active = _themes[_settings.activeTheme or ""] or {
+                background = DEFAULTS.background,
+                font       = DEFAULTS.font,
+                outline    = DEFAULTS.outline,
+            }
+
+            local function snapshot()
+                local cur = _themes[_settings.activeTheme or ""] or {
+                    background = DEFAULTS.background, font = DEFAULTS.font, outline = DEFAULTS.outline
+                }
+                return cur
+            end
+
+            uiSec:colorpicker({
+                name = "background",
+                color = hex(active.background),
+                callback = function(c)
+                    local cur = snapshot(); cur.background = c:ToHex()
+                    _themes[_settings.activeTheme or "custom"] = cur
+                    _settings.activeTheme = _settings.activeTheme or "custom"
+                    _write_json(THEME_FILE, _themes); _write_json(SETTINGS_FILE, _settings)
+                    _apply_color("background", c)
+                end
+            })
+
+            uiSec:colorpicker({
+                name = "font",
+                color = hex(active.font),
+                callback = function(c)
+                    local cur = snapshot(); cur.font = c:ToHex()
+                    _themes[_settings.activeTheme or "custom"] = cur
+                    _settings.activeTheme = _settings.activeTheme or "custom"
+                    _write_json(THEME_FILE, _themes); _write_json(SETTINGS_FILE, _settings)
+                    _apply_color("font", c)
+                end
+            })
+
+            uiSec:colorpicker({
+                name = "outline",
+                color = hex(active.outline),
+                callback = function(c)
+                    local cur = snapshot(); cur.outline = c:ToHex()
+                    _themes[_settings.activeTheme or "custom"] = cur
+                    _settings.activeTheme = _settings.activeTheme or "custom"
+                    _write_json(THEME_FILE, _themes); _write_json(SETTINGS_FILE, _settings)
+                    _apply_color("outline", c)
+                end
+            })
+
+            uiSec:textbox({ name = "theme name", flag = "theme_name" })
+            uiSec:list({ options = library:list_themes(), flag = "theme_list", callback = function(name) library:load_theme(name) end })
+            uiSec:button({name = "create theme", callback = function()
+                local n = library.flags["theme_name"]; if not n or n == "" then return end
+                library:create_theme(n, snapshot())
+            end})
+            uiSec:button({name = "overwrite theme", callback = function()
+                local n = library.flags["theme_list"]; if not n then return end
+                library:overwrite_theme(n, snapshot())
+            end})
+            uiSec:button({name = "set default theme", callback = function()
+                local n = library.flags["theme_list"]; if n then library:set_default_theme(n) end
+            end})
+            uiSec:button({name = "delete theme", callback = function()
+                local n = library.flags["theme_list"]; if n then library:delete_theme(n) end
+            end})
+
+            library:init_default_config()
+        end
+    --
+-- 
 
 return library
