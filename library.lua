@@ -3814,9 +3814,7 @@
             local old_refresh = cfgSec
             config_holder = {
                 refresh_options = function(list)
-                    old_refresh:list_refresh and old_refresh:list_refresh(list)
-                end
-            }
+                  
 
             cfgSec:textbox({ name = "config name", flag = "config_name" })
             cfgSec:button({name = "create", callback = function()
