@@ -3035,7 +3035,7 @@
         local main = window:tab({name = "Configs", tabs = {"Main"}})
         
         local column = main:column({})
-        local section = column:section({name = "Configs", size = 1, default = true, icon = "rbxassetid://139628202576511"})
+        local section = column:section({name = "settings", size = 1, default = true, icon = "rbxassetid://139628202576511"})
         config_holder = section:list({options = {"Report", "This", "Error", "To", "Finobe"}, callback = function(option) end, flag = "config_name_list"}); library:update_config_list()
         
         local column = main:column({})
